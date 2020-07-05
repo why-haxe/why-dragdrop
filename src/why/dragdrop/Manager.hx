@@ -168,8 +168,8 @@ class ManagerActions implements Actions<Event> {
 	}
 
 	public function hover(targetIds:Array<TargetId>, options:HoverOptions):Void {
-		var targetIds = targetIds.copy();
-		var draggedItemType = context.getItemType();
+		final targetIds = targetIds.copy();
+		final draggedItemType = context.getItemType();
 
 		// checkInvariants
 		if (!context.isDragging())
@@ -230,7 +230,7 @@ class ManagerActions implements Actions<Event> {
 	public function endDrag() {
 		if (!context.isDragging())
 			throw new Exception('Cannot call endDrag while not dragging.');
-		var sourceId = context.getSourceId();
+		final sourceId = context.getSourceId();
 		if (sourceId != null) {
 			final source = registry.getSource(sourceId, true);
 			source.endDrag(context, sourceId);

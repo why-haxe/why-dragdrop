@@ -63,8 +63,8 @@ class Context implements IContext {
 			case null: false;
 			case _ if (!isDragging() || didDrop()): false;
 			case target:
-				var targetType = registry.getTargetType(targetId);
-				var itemType = getItemType();
+				final targetType = registry.getTargetType(targetId);
+				final itemType = getItemType();
 				return targetType.contains(itemType) && target.canDrop(this, targetId);
 		}
 	}
@@ -78,8 +78,8 @@ class Context implements IContext {
 			case null: false;
 			case _ if (!isDragging() || !isSourcePublic()): false;
 			case source:
-				var sourceType = registry.getSourceType(sourceId);
-				var itemType = getItemType();
+				final sourceType = registry.getSourceType(sourceId);
+				final itemType = getItemType();
 				return sourceType == itemType && source.isDragging(this, sourceId);
 		}
 	}
@@ -153,13 +153,6 @@ class Context implements IContext {
 		return getClientOffset() - getInitialClientOffset();
 	}
 
-	// public function setInitialClientOffset(v:Point):Void {
-	// 	return (cast _initialClientOffset : State<Point>).set(v);
-	// }
-	// public function setInitialSourceClientOffset(v:Point) {
-	// 	return (cast _initialSourceClientOffset : State<Point>).set(v);
-	// }
-
 	public function getDraggableSource(sourceIds:Array<SourceId>):SourceId {
 		var i = sourceIds.length - 1;
 		while (i >= 0) {
@@ -172,7 +165,7 @@ class Context implements IContext {
 	}
 
 	public function getDroppableTargets():Array<TargetId> {
-		var targetIds = getTargetIds().filter(canDropOnTarget);
+		final targetIds = getTargetIds().filter(canDropOnTarget);
 		targetIds.reverse();
 		return targetIds;
 	}
