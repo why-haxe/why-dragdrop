@@ -41,6 +41,8 @@ class NonDroppableTarget extends TargetBase {
 	public var didCallDrop = false;
 	public var didCallHover = false;
 
+	public function new() {}
+
 	override function canDrop(context:Context, targetId:TargetId):Bool {
 		return false;
 	}
@@ -59,6 +61,8 @@ class TargetWithNoDropResult extends TargetBase {
 	public var didCallDrop = false;
 	public var didCallHover = false;
 
+	public function new() {}
+
 	override function hover(context:Context, targetId:TargetId):Void {
 		this.didCallHover = true;
 	}
@@ -70,6 +74,8 @@ class TargetWithNoDropResult extends TargetBase {
 }
 
 class BadResultTarget extends TargetBase {
+	public function new() {}
+
 	override function drop(context:Context, targetId:TargetId):Any {
 		return 42;
 	}
@@ -81,7 +87,7 @@ class TransformResultTarget extends TargetBase {
 
 	var transform:(input:Any) -> Any;
 
-	override function new(transform) {
+	public function new(transform) {
 		this.transform = transform;
 	}
 

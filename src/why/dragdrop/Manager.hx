@@ -77,6 +77,8 @@ class ManagerActions implements Actions<Event> {
 		this.context = manager.getMonitor();
 		this.registry = manager.getRegistry();
 
+		// in the original library the side effects are applied to a redux store
+		// our Context does the same thing with Observables
 		signal = Signal.trigger();
 		signal.asSignal().handle(function(event) switch event {
 			case BeginDrag(beginDrag):
@@ -87,11 +89,14 @@ class ManagerActions implements Actions<Event> {
 				context.__initialClientOffset.set(beginDrag.clientOffset);
 				context.__initialSourceClientOffset.set(beginDrag.sourceClientOffset);
 				context.__isSourcePublic.set(beginDrag.isSourcePublic);
+
 			case PublishDragSource:
 				context.__isSourcePublic.set(true);
 
 			case Hover(hover):
 				context.__targetIds.set(hover.targetIds);
+
+			// TODO: https://github.com/react-dnd/react-dnd/blob/debc89829dd988f4e942a0251eba36c34a070f42/packages/core/dnd-core/src/reducers/dragOperation.ts#L66-L73
 
 			case Drop(drop):
 				context.__dropResult.set(drop.dropResult);
@@ -157,13 +162,28 @@ class ManagerActions implements Actions<Event> {
 		}));
 	}
 
-	public function publishDragSource():Option<Event> {
-		return if (context.isDragging()) Some(PublishDragSource) else None;
+	public function publishDragSource() {
+		if (context.isDragging())
+			signal.trigger(PublishDragSource);
 	}
 
-	public function hover(targetIds:Array<TargetId>, options:HoverOptions):Event {
+	public function hover(targetIds:Array<TargetId>, options:HoverOptions):Void {
 		var targetIds = targetIds.copy();
 		var draggedItemType = context.getItemType();
+
+		// checkInvariants
+		if (!context.isDragging())
+			throw new Exception('Cannot call hover while not dragging.');
+		if (context.didDrop())
+			throw new Exception('Cannot call hover after drop.');
+		for (i => targetId in targetIds) {
+			if (targetIds.lastIndexOf(targetId) != i)
+				throw new Exception('Expected targetIds to be unique in the passed array.');
+
+			final target = registry.getTarget(targetId);
+			if (target == null)
+				throw new Exception('Expected targetIds to be registered.');
+		}
 
 		// removeNonMatchingTargetIds
 		var i = targetIds.length - 1;
@@ -181,26 +201,30 @@ class ManagerActions implements Actions<Event> {
 			target.hover(context, targetId);
 		}
 
-		return Hover({
+		signal.trigger(Hover({
 			targetIds: targetIds,
 			clientOffset: options.clientOffset,
-		});
+		}));
 	}
 
-	public function drop(options:Any):Array<Event> {
+	public function drop(options:Any) {
+		if (!context.isDragging())
+			throw new Exception('Cannot call drop while not dragging.');
+		if (context.didDrop())
+			throw new Exception('Cannot call drop twice during one drag operation.');
+
 		final targetIds = context.getDroppableTargets();
-		return [
-			for (index => targetId in targetIds) {
-				final dropResult = (function determineDropResult() {
-					final target = registry.getTarget(targetId);
-					var dropResult = target != null ? target.drop(context, targetId) : null;
-					if (dropResult == null)
-						dropResult = index == 0 ? {} : context.getDropResult();
-					return dropResult;
-				})();
-				Drop({dropResult: dropResult});
-			}
-		];
+
+		for (index => targetId in targetIds) {
+			final dropResult = (function determineDropResult() {
+				final target = registry.getTarget(targetId);
+				var dropResult = target != null ? target.drop(context, targetId) : null;
+				if (dropResult == null)
+					dropResult = index == 0 ? {} : context.getDropResult();
+				return dropResult;
+			})();
+			signal.trigger(Drop({dropResult: dropResult}));
+		}
 	}
 
 	public function endDrag() {
