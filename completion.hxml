@@ -1,0 +1,5 @@
+tests.hxml
+--library travix
+--library why-dragdrop
+--no-output
+--js bin/completion.js

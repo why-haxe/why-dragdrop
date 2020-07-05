@@ -1,0 +1,6 @@
+-lib tink_spatial
+-lib tink_state
+-lib tink_anon
+-cp ${SCOPE_DIR}/./src
+-D why-dragdrop=0.0.0
+--macro Sys.println("haxe_libraries/why-dragdrop.hxml:2: [Warning] Using dev version of library why-dragdrop")
