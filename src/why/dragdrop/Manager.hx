@@ -109,7 +109,7 @@ class ManagerActions implements Actions<Event> {
 				context.__sourceId.set(null);
 				context.__dropResult.set(null);
 				context.__didDrop.set(false);
-				context.__isSourcePublic.set(null);
+				context.__isSourcePublic.set(false);
 				context.__targetIds.set([]);
 		});
 	}

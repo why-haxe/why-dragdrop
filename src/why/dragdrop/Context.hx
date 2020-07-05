@@ -44,7 +44,7 @@ class Context implements IContext {
 		_targetIds = __targetIds = new State([]);
 		_dropResult = __dropResult = new State(null);
 		_didDrop = __didDrop = new State(false);
-		_isSourcePublic = __isSourcePublic = new State(null);
+		_isSourcePublic = __isSourcePublic = new State(false);
 		_initialClientOffset = __initialClientOffset = new State(null);
 		_initialSourceClientOffset = __initialSourceClientOffset = new State(null);
 		_clientOffset = __clientOffset = new State(null);
@@ -162,7 +162,7 @@ class Context implements IContext {
 
 	public function getDraggableSource(sourceIds:Array<SourceId>):SourceId {
 		var i = sourceIds.length - 1;
-		while(i >= 0) {
+		while (i >= 0) {
 			final id = sourceIds[i];
 			if (canDragSource(id))
 				return id;
