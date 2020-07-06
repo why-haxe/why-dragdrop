@@ -216,13 +216,11 @@ class ManagerActions implements Actions<Event> {
 		final targetIds = context.getDroppableTargets();
 
 		for (index => targetId in targetIds) {
-			final dropResult = (function determineDropResult() {
-				final target = registry.getTarget(targetId);
-				var dropResult = target != null ? target.drop(context, targetId) : null;
-				if (dropResult == null)
-					dropResult = index == 0 ? {} : context.getDropResult();
-				return dropResult;
-			})();
+			final target = registry.getTarget(targetId);
+			var dropResult = target != null ? target.drop(context, targetId) : null;
+			if (dropResult == null)
+				dropResult = index == 0 ? {} : context.getDropResult();
+
 			signal.trigger(Drop({dropResult: dropResult}));
 		}
 	}
