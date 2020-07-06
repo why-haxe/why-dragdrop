@@ -4,6 +4,7 @@ import why.dragdrop.BeginDragPayload;
 import haxe.Exception;
 import tink.Anon.splat;
 import tink.state.Observable;
+import tink.state.State;
 
 enum Event {
 	BeginDrag(beginDrag:BeginDragPayload);
@@ -14,35 +15,43 @@ enum Event {
 }
 
 class Manager<Node> {
-	public final events:Signal<Event>;
-	public final context:Context;
-	public final backend:Backend<Node>;
-	public final registry:Registry;
-	public final actions:Actions<Event>;
+	final events:Signal<Event>;
+	final context:Context;
+	final backend:State<Backend<Node>>;
+	final registry:Registry;
+	final actions:Actions<Event>;
 
 	final eventsTrigger:SignalTrigger<Event>;
 
-	var isSetUp = false;
-
-	public function new(backend) {
+	public function new() {
 		registry = new Registry();
 		context = new Context(registry);
-		this.backend = backend;
+		backend = new State(null);
 		actions = new ManagerActions(this);
 		events = eventsTrigger = Signal.trigger();
 
-		Observable.auto(() -> Lambda.count(registry.sources) + Lambda.count(registry.targets)).bind({direct: true}, count -> {
-			final shouldSetUp = count > 0;
+		var registryCount = Observable.auto(() -> Lambda.count(registry.sources) + Lambda.count(registry.targets));
+		var backendBinding:CallbackLink = null;
+		backend.bind(null, backend -> {
+			backendBinding.cancel();
 			if (backend != null) {
-				if (shouldSetUp && !this.isSetUp) {
-					backend.setup();
-					isSetUp = true;
-				} else if (!shouldSetUp && this.isSetUp) {
-					backend.teardown();
-					isSetUp = false;
-				}
+				var isSetUp = false;
+				backendBinding = registryCount.bind({direct: true}, count -> {
+					final shouldSetUp = count > 0;
+					if (shouldSetUp && !isSetUp) {
+						backend.setup();
+						isSetUp = true;
+					} else if (!shouldSetUp && isSetUp) {
+						backend.teardown();
+						isSetUp = false;
+					}
+				});
 			}
 		});
+	}
+
+	public inline function setBackend(value:Backend<Node>) {
+		backend.set(value);
 	}
 
 	public inline function getMonitor():Context {
@@ -50,7 +59,7 @@ class Manager<Node> {
 	}
 
 	public inline function getBackend():Backend<Node> {
-		return backend;
+		return backend.value;
 	}
 
 	public inline function getRegistry():Registry {

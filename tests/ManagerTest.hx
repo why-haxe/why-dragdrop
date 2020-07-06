@@ -16,9 +16,9 @@ class ManagerTest {
 
 	@:before
 	public function before() {
-		backend = new TestBackend();
-		manager = new Manager(backend);
-		backend.setManager(manager);
+		manager = new Manager();
+		backend = new TestBackend(manager);
+		manager.setBackend(backend);
 		registry = manager.getRegistry();
 		return Promise.NOISE;
 	}

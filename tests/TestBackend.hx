@@ -13,9 +13,7 @@ class TestBackend implements Backend<Noise> {
 	var manager:Manager<Noise>;
 	var actions:Actions<Manager.Event>;
 
-	public function new() {}
-
-	public function setManager(manager) {
+	public function new(manager) {
 		this.manager = manager;
 		this.actions = manager.getActions();
 	}
