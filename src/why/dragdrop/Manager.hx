@@ -13,10 +13,10 @@ enum Event {
 	EndDrag;
 }
 
-class Manager {
+class Manager<Node> {
 	public final events:Signal<Event>;
 	public final context:Context;
-	public final backend:Backend;
+	public final backend:Backend<Node>;
 	public final registry:Registry;
 	public final actions:Actions<Event>;
 
@@ -49,7 +49,7 @@ class Manager {
 		return context;
 	}
 
-	public inline function getBackend():Backend {
+	public inline function getBackend():Backend<Node> {
 		return backend;
 	}
 
@@ -66,13 +66,13 @@ class Manager {
 	}
 }
 
-class ManagerActions implements Actions<Event> {
-	final manager:Manager;
+class ManagerActions<Node> implements Actions<Event> {
+	final manager:Manager<Node>;
 	final context:Context;
 	final registry:Registry;
 	final signal:SignalTrigger<Event>;
 
-	public function new(manager:Manager) {
+	public function new(manager) {
 		this.manager = manager;
 		this.context = manager.getMonitor();
 		this.registry = manager.getRegistry();

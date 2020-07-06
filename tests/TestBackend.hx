@@ -6,16 +6,16 @@ using tink.CoreApi;
 
 typedef Node = Any; // TODO: make it a type parameter
 
-class TestBackend implements Backend {
+class TestBackend implements Backend<Noise> {
 	public var didCallSetup:Bool = false;
 	public var didCallTeardown:Bool = false;
 
-	var manager:Manager;
+	var manager:Manager<Noise>;
 	var actions:Actions<Manager.Event>;
 
 	public function new() {}
-	
-	public function setManager(manager:Manager) {
+
+	public function setManager(manager) {
 		this.manager = manager;
 		this.actions = manager.getActions();
 	}
@@ -32,15 +32,15 @@ class TestBackend implements Backend {
 		this.didCallTeardown = true;
 	}
 
-	public function connectDragSource(sourceId:SourceId, ?node:Node, options:Any):CallbackLink {
+	public function connectDragSource(sourceId:SourceId, ?node:Noise, options:Any):CallbackLink {
 		return null;
 	}
 
-	public function connectDragPreview(sourceId:SourceId, ?node:Node, options:Any):CallbackLink {
+	public function connectDragPreview(sourceId:SourceId, ?node:Noise, options:Any):CallbackLink {
 		return null;
 	}
 
-	public function connectDropTarget(targetId:SourceId, ?node:Node, options:Any):CallbackLink {
+	public function connectDropTarget(targetId:SourceId, ?node:Noise, options:Any):CallbackLink {
 		return null;
 	}
 

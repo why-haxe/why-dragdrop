@@ -2,9 +2,7 @@ package why.dragdrop;
 
 using tink.CoreApi;
 
-typedef Node = Any; // TODO: make it a type parameter
-
-interface Backend {
+interface Backend<Node> {
 	function setup():Void;
 	function teardown():Void;
 	function connectDragSource(sourceId:SourceId, ?node:Node, options:Any):CallbackLink;
@@ -12,4 +10,3 @@ interface Backend {
 	function connectDropTarget(targetId:SourceId, ?node:Node, options:Any):CallbackLink;
 	function profile():Map<String, Int>;
 }
-

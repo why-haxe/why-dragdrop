@@ -8,7 +8,7 @@ using tink.CoreApi;
 
 @:asserts
 class ManagerTest {
-	var manager:Manager;
+	var manager:Manager<Noise>;
 	var backend:TestBackend;
 	var registry:Registry;
 
