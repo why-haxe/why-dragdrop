@@ -112,6 +112,9 @@ class ManagerActions<Node> implements Actions {
 				context.__dropResult.set(drop.dropResult);
 				context.__didDrop.set(true);
 				context.__targetIds.set([]);
+				context.__clientOffset.set(null);
+				context.__initialClientOffset.set(null);
+				context.__initialSourceClientOffset.set(null);
 
 			case EndDrag:
 				context.__itemType.set(null);
@@ -121,6 +124,9 @@ class ManagerActions<Node> implements Actions {
 				context.__didDrop.set(false);
 				context.__isSourcePublic.set(false);
 				context.__targetIds.set([]);
+				context.__clientOffset.set(null);
+				context.__initialClientOffset.set(null);
+				context.__initialSourceClientOffset.set(null);
 		});
 	}
 

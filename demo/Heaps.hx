@@ -6,6 +6,8 @@ import why.dragdrop.*;
 import why.dragdrop.backend.*;
 import tink.state.Observable;
 
+using tink.CoreApi;
+
 class Heaps extends hxd.App {
 	static function main() {
 		new Heaps();
@@ -17,28 +19,39 @@ class Heaps extends hxd.App {
 		final backend = new HeapsBackend(s2d, context, manager.getActions());
 		manager.setBackend(backend);
 
-		var sourceId = manager.getRegistry().addSource('DEFAULT', new MySource());
-		var targetId = manager.getRegistry().addTarget(['DEFAULT'], new MyTarget());
-		var targetId2 = manager.getRegistry().addTarget(['DEFAULT'], new MyTarget());
+		var sourceId1 = manager.getRegistry().addSource('DEFAULT', new MySource());
+		var sourceId2 = manager.getRegistry().addSource('FOO', new MySource());
+		var targetId1 = manager.getRegistry().addTarget(['DEFAULT'], new MyTarget());
+		var targetId2 = manager.getRegistry().addTarget(['DEFAULT', 'FOO'], new MyTarget());
 
 		var target2 = makeSprite(200, 0, 300, 300, 0x0000ff);
-		var target = makeSprite(300, 100, 100, 100, 0x00ff00);
-		var source = makeSprite(0, 0, 100, 100, 0xff0000);
+		var target1 = makeSprite(300, 100, 100, 100, 0x00ff00);
+		var source1 = makeSprite(0, 0, 100, 100, 0xff0000);
+		var source2 = makeSprite(0, 200, 100, 100, 0xffff00);
 
-		backend.connectDragSource(sourceId, source, {});
-		backend.connectDropTarget(targetId, target, {});
+		backend.connectDragSource(sourceId1, source1, {});
+		backend.connectDragSource(sourceId2, source2, {});
+		backend.connectDropTarget(targetId1, target1, {});
 		backend.connectDropTarget(targetId2, target2, {});
 
-		Observable.auto(() -> context.getSourceClientOffset()).bind(null, pos -> {
+		Observable.auto(() -> new Pair(context.getSourceId(), context.getSourceClientOffset())).bind(null, pair -> {
+			var currentSourceId = pair.a;
+			var pos = pair.b;
 			if (pos != null) {
-				source.parent.x = pos.x;
-				source.parent.y = pos.y;
+				if (currentSourceId == sourceId1) {
+					source1.parent.x = pos.x;
+					source1.parent.y = pos.y;
+				}
+				if (currentSourceId == sourceId2) {
+					source2.parent.x = pos.x;
+					source2.parent.y = pos.y;
+				}
 			}
 		});
 
 		Observable.auto(() -> context.getTargetIds()).bind(null, targets -> {
-			target.parent.alpha = targets.contains(targetId) ? 0.5 : 1;
-			target2.parent.alpha = targets.contains(targetId2) ? 0.5 : 1;
+			target1.parent.alpha = targets.contains(targetId1) && context.canDropOnTarget(targetId1) ? 0.5 : 1;
+			target2.parent.alpha = targets.contains(targetId2) && context.canDropOnTarget(targetId2) ? 0.5 : 1;
 		});
 
 		Observable.auto(() -> {
