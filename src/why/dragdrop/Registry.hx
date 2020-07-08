@@ -5,51 +5,51 @@ import tink.core.Callback;
 import tink.state.ObservableMap;
 
 @:allow(why.dragdrop)
-class Registry {
+class Registry<Item> {
 	final sourceTypes:Map<SourceId, SourceType> = new Map();
 	final targetTypes:Map<TargetId, Array<TargetType>> = new Map();
-	final sources:ObservableMap<SourceId, DragSource> = new ObservableMap([]);
-	final targets:ObservableMap<TargetId, DropTarget> = new ObservableMap([]);
+	final sources:ObservableMap<SourceId, DragSource<Item>> = new ObservableMap([]);
+	final targets:ObservableMap<TargetId, DropTarget<Item>> = new ObservableMap([]);
 
 	var pinnedSourceId:SourceId;
-	var pinnedSource:DragSource;
+	var pinnedSource:DragSource<Item>;
 
 	public function new() {}
 
-	public function addSource(type:SourceType, source:DragSource):SourceId {
+	public function addSource(type:SourceType, source:DragSource<Item>):SourceId {
 		final id = new SourceId();
 		sourceTypes.set(id, type);
 		sources.set(id, source);
 		return id;
 	}
 
-	public function addTarget(type:Array<TargetType>, target:DropTarget):TargetId {
+	public function addTarget(type:Array<TargetType>, target:DropTarget<Item>):TargetId {
 		final id = new TargetId();
 		targetTypes.set(id, type);
 		targets.set(id, target);
 		return id;
 	}
 
-	public function containsSource(handler:DragSource):Bool {
+	public function containsSource(handler:DragSource<Item>):Bool {
 		for (source in sources)
 			if (source == handler)
 				return true;
 		return false;
 	}
 
-	public function containsTarget(handler:DropTarget):Bool {
+	public function containsTarget(handler:DropTarget<Item>):Bool {
 		for (target in targets)
 			if (target == handler)
 				return true;
 		return false;
 	}
 
-	public function getSource(sourceId:SourceId, includePinned:Bool = false):DragSource {
+	public function getSource(sourceId:SourceId, includePinned:Bool = false):DragSource<Item> {
 		final isPinned = includePinned && sourceId == pinnedSourceId;
 		return isPinned ? pinnedSource : sources.get(sourceId);
 	}
 
-	public function getTarget(targetId:TargetId):DropTarget {
+	public function getTarget(targetId:TargetId):DropTarget<Item> {
 		return targets.get(targetId);
 	}
 

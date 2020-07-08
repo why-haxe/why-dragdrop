@@ -1,7 +1,7 @@
 package why.dragdrop;
 
-interface DropTarget {
-	function canDrop(ctx:Context, targetId:TargetId):Bool;
-	function hover(ctx:Context, targetId:TargetId):Void;
-	function drop(ctx:Context, targetId:TargetId):Any;
+interface DropTarget<Item> {
+	function canDrop(ctx:Context<Item>, targetId:TargetId):Bool;
+	function hover(ctx:Context<Item>, targetId:TargetId):Void;
+	function drop(ctx:Context<Item>, targetId:TargetId):Any;
 }

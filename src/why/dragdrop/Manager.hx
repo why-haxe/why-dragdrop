@@ -14,11 +14,11 @@ enum Event {
 	EndDrag;
 }
 
-class Manager<Node> {
+class Manager<Item, Node> {
 	final events:Signal<Event>;
-	final context:Context;
+	final context:Context<Item>;
 	final backend:State<Backend<Node>>;
-	final registry:Registry;
+	final registry:Registry<Item>;
 	final actions:Actions;
 
 	final eventsTrigger:SignalTrigger<Event>;
@@ -54,7 +54,7 @@ class Manager<Node> {
 		backend.set(value);
 	}
 
-	public inline function getMonitor():Context {
+	public inline function getMonitor():Context<Item> {
 		return context;
 	}
 
@@ -62,7 +62,7 @@ class Manager<Node> {
 		return backend.value;
 	}
 
-	public inline function getRegistry():Registry {
+	public inline function getRegistry():Registry<Item> {
 		return registry;
 	}
 
@@ -75,10 +75,10 @@ class Manager<Node> {
 	}
 }
 
-class ManagerActions<Node> implements Actions {
-	final manager:Manager<Node>;
-	final context:Context;
-	final registry:Registry;
+class ManagerActions<Item, Node> implements Actions {
+	final manager:Manager<Item, Node>;
+	final context:Context<Item>;
+	final registry:Registry<Item>;
 	final signal:SignalTrigger<Event>;
 
 	public function new(manager) {

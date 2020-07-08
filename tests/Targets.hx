@@ -2,16 +2,16 @@ package;
 
 import why.dragdrop.*;
 
-class TargetBase implements DropTarget {
-	public function canDrop(context:Context, targetId:TargetId):Bool {
+class TargetBase implements DropTarget<Any> {
+	public function canDrop(context:Context<Any>, targetId:TargetId):Bool {
 		return true;
 	}
 
-	public function hover(context:Context, targetId:TargetId):Void {
+	public function hover(context:Context<Any>, targetId:TargetId):Void {
 		// empty on purpose
 	}
 
-	public function drop(context:Context, targetId:TargetId):Any {
+	public function drop(context:Context<Any>, targetId:TargetId):Any {
 		return null;
 	}
 }
@@ -27,11 +27,11 @@ class NormalTarget extends TargetBase {
 			this.dropResult = {foo: 'bar'}
 	}
 
-	override function hover(context:Context, targetId:TargetId):Void {
+	override function hover(context:Context<Any>, targetId:TargetId):Void {
 		didCallHover = true;
 	}
 
-	override function drop(context:Context, targetId:TargetId):Any {
+	override function drop(context:Context<Any>, targetId:TargetId):Any {
 		didCallDrop = true;
 		return dropResult;
 	}
@@ -43,15 +43,15 @@ class NonDroppableTarget extends TargetBase {
 
 	public function new() {}
 
-	override function canDrop(context:Context, targetId:TargetId):Bool {
+	override function canDrop(context:Context<Any>, targetId:TargetId):Bool {
 		return false;
 	}
 
-	override function hover(context:Context, targetId:TargetId):Void {
+	override function hover(context:Context<Any>, targetId:TargetId):Void {
 		this.didCallHover = true;
 	}
 
-	override function drop(context:Context, targetId:TargetId):Any {
+	override function drop(context:Context<Any>, targetId:TargetId):Any {
 		this.didCallDrop = true;
 		return null;
 	}
@@ -63,11 +63,11 @@ class TargetWithNoDropResult extends TargetBase {
 
 	public function new() {}
 
-	override function hover(context:Context, targetId:TargetId):Void {
+	override function hover(context:Context<Any>, targetId:TargetId):Void {
 		this.didCallHover = true;
 	}
 
-	override function drop(context:Context, targetId:TargetId):Any {
+	override function drop(context:Context<Any>, targetId:TargetId):Any {
 		this.didCallDrop = true;
 		return null;
 	}
@@ -76,7 +76,7 @@ class TargetWithNoDropResult extends TargetBase {
 class BadResultTarget extends TargetBase {
 	public function new() {}
 
-	override function drop(context:Context, targetId:TargetId):Any {
+	override function drop(context:Context<Any>, targetId:TargetId):Any {
 		return 42;
 	}
 }
@@ -91,11 +91,11 @@ class TransformResultTarget extends TargetBase {
 		this.transform = transform;
 	}
 
-	override function hover(context:Context, targetId:TargetId):Void {
+	override function hover(context:Context<Any>, targetId:TargetId):Void {
 		this.didCallHover = true;
 	}
 
-	override function drop(context:Context, targetId:TargetId):Any {
+	override function drop(context:Context<Any>, targetId:TargetId):Any {
 		this.didCallDrop = true;
 		final dropResult = context.getDropResult();
 		return transform(dropResult);

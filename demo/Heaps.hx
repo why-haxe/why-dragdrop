@@ -80,42 +80,46 @@ class Heaps extends hxd.App {
 	}
 }
 
-class MySource implements DragSource {
+typedef MyItem = {
+	final foo:String;
+}
+
+class MySource implements DragSource<MyItem> {
 	public function new() {}
 
-	public function beginDrag(ctx:Context, sourceId:SourceId):Any {
+	public function beginDrag(ctx:Context<MyItem>, sourceId:SourceId):MyItem {
 		trace('beginDrag');
 		return {foo: 'bar'}
 	}
 
-	public function endDrag(ctx:Context, sourceId:SourceId):Void {
+	public function endDrag(ctx:Context<MyItem>, sourceId:SourceId):Void {
 		trace('endDrag');
 	}
 
-	public function canDrag(ctx:Context, sourceId:SourceId):Bool {
+	public function canDrag(ctx:Context<MyItem>, sourceId:SourceId):Bool {
 		trace('canDrag');
 		return true;
 	}
 
-	public function isDragging(ctx:Context, sourceId:SourceId):Bool {
+	public function isDragging(ctx:Context<MyItem>, sourceId:SourceId):Bool {
 		trace('isDragging');
 		return ctx.getItem() != null;
 	}
 }
 
-class MyTarget implements DropTarget {
+class MyTarget implements DropTarget<MyItem> {
 	public function new() {}
 
-	public function canDrop(ctx:Context, targetId:TargetId):Bool {
+	public function canDrop(ctx:Context<MyItem>, targetId:TargetId):Bool {
 		trace('canDrop');
 		return true;
 	}
 
-	public function hover(ctx:Context, targetId:TargetId):Void {
+	public function hover(ctx:Context<MyItem>, targetId:TargetId):Void {
 		trace('hover');
 	}
 
-	public function drop(ctx:Context, targetId:TargetId):Any {
+	public function drop(ctx:Context<MyItem>, targetId:TargetId):Any {
 		trace('drop');
 		return {bar: 'foo'};
 	}

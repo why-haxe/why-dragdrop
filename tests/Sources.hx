@@ -2,20 +2,20 @@ package;
 
 import why.dragdrop.*;
 
-class SourceBase implements DragSource {
-	public function canDrag(context:Context, sourceId:SourceId):Bool {
+class SourceBase implements DragSource<Any> {
+	public function canDrag(context:Context<Any>, sourceId:SourceId):Bool {
 		return true;
 	}
 
-	public function isDragging(context:Context, sourceId:SourceId):Bool {
+	public function isDragging(context:Context<Any>, sourceId:SourceId):Bool {
 		return sourceId == context.getSourceId();
 	}
 
-	public function beginDrag(context:Context, sourceId:SourceId):Any {
+	public function beginDrag(context:Context<Any>, sourceId:SourceId):Any {
 		return null;
 	}
 
-	public function endDrag(context:Context, sourceId:SourceId):Void {
+	public function endDrag(context:Context<Any>, sourceId:SourceId):Void {
 		// empty on purpose
 	}
 }
@@ -31,12 +31,12 @@ class NormalSource extends SourceBase {
 			this.item = {baz: 42}
 	}
 
-	override function beginDrag(context:Context, sourceId:SourceId):Any {
+	override function beginDrag(context:Context<Any>, sourceId:SourceId):Any {
 		didCallBeginDrag = true;
 		return this.item;
 	}
 
-	override function endDrag(context:Context, sourceId:SourceId):Void {
+	override function endDrag(context:Context<Any>, sourceId:SourceId):Void {
 		this.recordedDropResult = context.getDropResult();
 	}
 }
@@ -46,11 +46,11 @@ class NonDraggableSource extends SourceBase {
 
 	public function new() {}
 
-	override function canDrag(context:Context, sourceId:SourceId) {
+	override function canDrag(context:Context<Any>, sourceId:SourceId) {
 		return false;
 	}
 
-	override function beginDrag(context:Context, sourceId:SourceId):Any {
+	override function beginDrag(context:Context<Any>, sourceId:SourceId):Any {
 		didCallBeginDrag = true;
 		return {};
 	}
@@ -59,7 +59,7 @@ class NonDraggableSource extends SourceBase {
 class BadItemSource extends SourceBase {
 	public function new() {}
 
-	override function beginDrag(context:Context, sourceId:SourceId):Any {
+	override function beginDrag(context:Context<Any>, sourceId:SourceId):Any {
 		return 42;
 	}
 }
@@ -73,16 +73,16 @@ class NumberSource extends SourceBase {
 		this.allowDrag = allowDrag;
 	}
 
-	override function canDrag(context:Context, sourceId:SourceId):Bool {
+	override function canDrag(context:Context<Any>, sourceId:SourceId):Bool {
 		return this.allowDrag;
 	}
 
-	override function isDragging(context:Context, sourceId:SourceId):Bool {
+	override function isDragging(context:Context<Any>, sourceId:SourceId):Bool {
 		final item = context.getItem();
 		return (cast item).number == this.number;
 	}
 
-	override function beginDrag(context:Context, sourceId:SourceId):Any {
+	override function beginDrag(context:Context<Any>, sourceId:SourceId):Any {
 		return {
 			number: this.number,
 		}

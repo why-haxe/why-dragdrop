@@ -8,8 +8,8 @@ private typedef Item = Any;
 private typedef DropResult = Any;
 
 @:allow(why.dragdrop)
-class Context implements IContext {
-	final registry:Registry;
+class Context<Item> implements IContext {
+	final registry:Registry<Item>;
 
 	// drag operation
 	final _itemType:Observable<SourceType>;
@@ -35,7 +35,7 @@ class Context implements IContext {
 	final __initialSourceClientOffset:State<Point>;
 	final __clientOffset:State<Point>;
 
-	public function new(registry:Registry) {
+	public function new(registry) {
 		this.registry = registry;
 
 		_itemType = __itemType = new State(null);
