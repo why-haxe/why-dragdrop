@@ -8,8 +8,8 @@ private typedef Item = Any;
 private typedef DropResult = Any;
 
 @:allow(why.dragdrop)
-class Context<Item> implements IContext {
-	final registry:Registry<Item>;
+class Context<Item, Result> implements IContext {
+	final registry:Registry<Item, Result>;
 
 	// drag operation
 	final _itemType:Observable<SourceType>;

@@ -5,51 +5,51 @@ import tink.core.Callback;
 import tink.state.ObservableMap;
 
 @:allow(why.dragdrop)
-class Registry<Item> {
+class Registry<Item, Result> {
 	final sourceTypes:Map<SourceId, SourceType> = new Map();
 	final targetTypes:Map<TargetId, Array<TargetType>> = new Map();
-	final sources:ObservableMap<SourceId, DragSource<Item>> = new ObservableMap([]);
-	final targets:ObservableMap<TargetId, DropTarget<Item>> = new ObservableMap([]);
+	final sources:ObservableMap<SourceId, DragSource<Item, Result>> = new ObservableMap([]);
+	final targets:ObservableMap<TargetId, DropTarget<Item, Result>> = new ObservableMap([]);
 
 	var pinnedSourceId:SourceId;
-	var pinnedSource:DragSource<Item>;
+	var pinnedSource:DragSource<Item, Result>;
 
 	public function new() {}
 
-	public function addSource(type:SourceType, source:DragSource<Item>):SourceId {
+	public function addSource(type:SourceType, source:DragSource<Item, Result>):SourceId {
 		final id = new SourceId();
 		sourceTypes.set(id, type);
 		sources.set(id, source);
 		return id;
 	}
 
-	public function addTarget(type:Array<TargetType>, target:DropTarget<Item>):TargetId {
+	public function addTarget(type:Array<TargetType>, target:DropTarget<Item, Result>):TargetId {
 		final id = new TargetId();
 		targetTypes.set(id, type);
 		targets.set(id, target);
 		return id;
 	}
 
-	public function containsSource(handler:DragSource<Item>):Bool {
+	public function containsSource(handler:DragSource<Item, Result>):Bool {
 		for (source in sources)
 			if (source == handler)
 				return true;
 		return false;
 	}
 
-	public function containsTarget(handler:DropTarget<Item>):Bool {
+	public function containsTarget(handler:DropTarget<Item, Result>):Bool {
 		for (target in targets)
 			if (target == handler)
 				return true;
 		return false;
 	}
 
-	public function getSource(sourceId:SourceId, includePinned:Bool = false):DragSource<Item> {
+	public function getSource(sourceId:SourceId, includePinned:Bool = false):DragSource<Item, Result> {
 		final isPinned = includePinned && sourceId == pinnedSourceId;
 		return isPinned ? pinnedSource : sources.get(sourceId);
 	}
 
-	public function getTarget(targetId:TargetId):DropTarget<Item> {
+	public function getTarget(targetId:TargetId):DropTarget<Item, Result> {
 		return targets.get(targetId);
 	}
 

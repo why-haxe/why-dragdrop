@@ -10,7 +10,7 @@ class TestBackend implements Backend<Noise> {
 	public var didCallSetup:Bool = false;
 	public var didCallTeardown:Bool = false;
 
-	var manager:Manager<Any, Noise>;
+	var manager:Manager<Any, Any, Noise>;
 	var actions:Actions;
 
 	public function new(manager) {

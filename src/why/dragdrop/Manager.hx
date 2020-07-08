@@ -14,11 +14,11 @@ enum Event {
 	EndDrag;
 }
 
-class Manager<Item, Node> {
+class Manager<Item, Result, Node> {
 	final events:Signal<Event>;
-	final context:Context<Item>;
+	final context:Context<Item, Result>;
 	final backend:State<Backend<Node>>;
-	final registry:Registry<Item>;
+	final registry:Registry<Item, Result>;
 	final actions:Actions;
 
 	final eventsTrigger:SignalTrigger<Event>;
@@ -54,7 +54,7 @@ class Manager<Item, Node> {
 		backend.set(value);
 	}
 
-	public inline function getMonitor():Context<Item> {
+	public inline function getMonitor():Context<Item, Result> {
 		return context;
 	}
 
@@ -62,7 +62,7 @@ class Manager<Item, Node> {
 		return backend.value;
 	}
 
-	public inline function getRegistry():Registry<Item> {
+	public inline function getRegistry():Registry<Item, Result> {
 		return registry;
 	}
 
@@ -75,10 +75,10 @@ class Manager<Item, Node> {
 	}
 }
 
-class ManagerActions<Item, Node> implements Actions {
-	final manager:Manager<Item, Node>;
-	final context:Context<Item>;
-	final registry:Registry<Item>;
+class ManagerActions<Item, Result, Node> implements Actions {
+	final manager:Manager<Item, Result, Node>;
+	final context:Context<Item, Result>;
+	final registry:Registry<Item, Result>;
 	final signal:SignalTrigger<Event>;
 
 	public function new(manager) {
@@ -235,7 +235,7 @@ class ManagerActions<Item, Node> implements Actions {
 			final target = registry.getTarget(targetId);
 			var dropResult = target != null ? target.drop(context, targetId) : null;
 			if (dropResult == null)
-				dropResult = index == 0 ? {} : context.getDropResult();
+				dropResult = index == 0 ? cast {} : context.getDropResult(); // TODO: fix cast
 
 			signal.trigger(Drop({dropResult: dropResult}));
 		}

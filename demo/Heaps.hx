@@ -84,42 +84,46 @@ typedef MyItem = {
 	final foo:String;
 }
 
-class MySource implements DragSource<MyItem> {
+typedef MyResult = {
+	final bar:String;
+}
+
+class MySource implements DragSource<MyItem, MyResult> {
 	public function new() {}
 
-	public function beginDrag(ctx:Context<MyItem>, sourceId:SourceId):MyItem {
+	public function beginDrag(ctx:Context<MyItem, MyResult>, sourceId:SourceId):MyItem {
 		trace('beginDrag');
 		return {foo: 'bar'}
 	}
 
-	public function endDrag(ctx:Context<MyItem>, sourceId:SourceId):Void {
+	public function endDrag(ctx:Context<MyItem, MyResult>, sourceId:SourceId):Void {
 		trace('endDrag');
 	}
 
-	public function canDrag(ctx:Context<MyItem>, sourceId:SourceId):Bool {
+	public function canDrag(ctx:Context<MyItem, MyResult>, sourceId:SourceId):Bool {
 		trace('canDrag');
 		return true;
 	}
 
-	public function isDragging(ctx:Context<MyItem>, sourceId:SourceId):Bool {
+	public function isDragging(ctx:Context<MyItem, MyResult>, sourceId:SourceId):Bool {
 		trace('isDragging');
 		return ctx.getItem() != null;
 	}
 }
 
-class MyTarget implements DropTarget<MyItem> {
+class MyTarget implements DropTarget<MyItem, MyResult> {
 	public function new() {}
 
-	public function canDrop(ctx:Context<MyItem>, targetId:TargetId):Bool {
+	public function canDrop(ctx:Context<MyItem, MyResult>, targetId:TargetId):Bool {
 		trace('canDrop');
 		return true;
 	}
 
-	public function hover(ctx:Context<MyItem>, targetId:TargetId):Void {
+	public function hover(ctx:Context<MyItem, MyResult>, targetId:TargetId):Void {
 		trace('hover');
 	}
 
-	public function drop(ctx:Context<MyItem>, targetId:TargetId):Any {
+	public function drop(ctx:Context<MyItem, MyResult>, targetId:TargetId):MyResult {
 		trace('drop');
 		return {bar: 'foo'};
 	}

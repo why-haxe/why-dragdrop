@@ -5,13 +5,13 @@ import h2d.Interactive;
 import hxd.Event;
 import tink.s2d.Point;
 
-class HeapsBackend<Item> implements Backend<Interactive> {
+class HeapsBackend<Item, Result> implements Backend<Interactive> {
 	final s2d:Scene;
 
 	final sourceNodes:Map<SourceId, Interactive> = new Map();
 	final targetNodes:Map<TargetId, Interactive> = new Map();
 
-	final context:Context<Item>;
+	final context:Context<Item, Result>;
 	final actions:Actions;
 
 	var moveStartSourceIds:Array<SourceId>;
