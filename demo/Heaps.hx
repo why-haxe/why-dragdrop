@@ -14,26 +14,31 @@ class Heaps extends hxd.App {
 	}
 
 	override function init() {
+		// setup drag/drop manager & backend
 		final manager = new Manager();
 		final context = manager.getMonitor();
 		final backend = new HeapsBackend(s2d, context, manager.getActions());
 		manager.setBackend(backend);
 
+		// create drag/drop handlers
 		var sourceId1 = manager.getRegistry().addSource('DEFAULT', new MySource());
 		var sourceId2 = manager.getRegistry().addSource('FOO', new MySource());
 		var targetId1 = manager.getRegistry().addTarget(['DEFAULT'], new MyTarget());
 		var targetId2 = manager.getRegistry().addTarget(['DEFAULT', 'FOO'], new MyTarget());
 
+		// create sprites
 		var target2 = makeSprite(200, 0, 300, 300, 0x0000ff);
 		var target1 = makeSprite(300, 100, 100, 100, 0x00ff00);
 		var source1 = makeSprite(0, 0, 100, 100, 0xff0000);
 		var source2 = makeSprite(0, 200, 100, 100, 0xffff00);
 
+		// connect sprites to handlers
 		backend.connectDragSource(sourceId1, source1, {});
 		backend.connectDragSource(sourceId2, source2, {});
 		backend.connectDropTarget(targetId1, target1, {});
 		backend.connectDropTarget(targetId2, target2, {});
 
+		// observe drag source position and update sprite position
 		Observable.auto(() -> new Pair(context.getSourceId(), context.getSourceClientOffset())).bind(null, pair -> {
 			var currentSourceId = pair.a;
 			var pos = pair.b;
@@ -49,11 +54,13 @@ class Heaps extends hxd.App {
 			}
 		});
 
+		// observe drop targets and update sprite opacity
 		Observable.auto(() -> context.getTargetIds()).bind(null, targets -> {
 			target1.parent.alpha = targets.contains(targetId1) && context.canDropOnTarget(targetId1) ? 0.5 : 1;
 			target2.parent.alpha = targets.contains(targetId2) && context.canDropOnTarget(targetId2) ? 0.5 : 1;
 		});
 
+		// debug
 		Observable.auto(() -> {
 			item: context.getItem(),
 			sourceId: context.getSourceId(),
