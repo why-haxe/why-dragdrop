@@ -1,8 +1,6 @@
 package why.dragdrop;
 
-typedef Item = Any; // TODO: type param
-
-typedef BeginDragPayload = {
+typedef BeginDragPayload<Item> = {
 	itemType:SourceType,
 	item:Item,
 	sourceId:SourceId,

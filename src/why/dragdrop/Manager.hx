@@ -6,22 +6,22 @@ import tink.Anon.splat;
 import tink.state.Observable;
 import tink.state.State;
 
-enum Event {
-	BeginDrag(beginDrag:BeginDragPayload);
+enum Event<Item, Result> {
+	BeginDrag(beginDrag:BeginDragPayload<Item>);
 	PublishDragSource;
 	Hover(hover:HoverPayload);
-	Drop(drop:DropPayload);
+	Drop(drop:DropPayload<Result>);
 	EndDrag;
 }
 
 class Manager<Item, Result, Node> {
-	final events:Signal<Event>;
+	final events:Signal<Event<Item, Result>>;
 	final context:Context<Item, Result>;
 	final backend:State<Backend<Node>>;
 	final registry:Registry<Item, Result>;
 	final actions:Actions;
 
-	final eventsTrigger:SignalTrigger<Event>;
+	final eventsTrigger:SignalTrigger<Event<Item, Result>>;
 
 	public function new() {
 		registry = new Registry();
@@ -70,7 +70,7 @@ class Manager<Item, Result, Node> {
 		return actions;
 	}
 
-	public inline function dispatch(event:Event) {
+	public inline function dispatch(event:Event<Item, Result>) {
 		eventsTrigger.trigger(event);
 	}
 }
@@ -79,7 +79,7 @@ class ManagerActions<Item, Result, Node> implements Actions {
 	final manager:Manager<Item, Result, Node>;
 	final context:Context<Item, Result>;
 	final registry:Registry<Item, Result>;
-	final signal:SignalTrigger<Event>;
+	final signal:SignalTrigger<Event<Item, Result>>;
 
 	public function new(manager) {
 		this.manager = manager;

@@ -4,8 +4,6 @@ import why.dragdrop.*;
 
 using tink.CoreApi;
 
-typedef Node = Any; // TODO: make it a type parameter
-
 class TestBackend implements Backend<Noise> {
 	public var didCallSetup:Bool = false;
 	public var didCallTeardown:Bool = false;
@@ -62,7 +60,6 @@ class TestBackend implements Backend<Noise> {
 		actions.endDrag();
 	}
 }
-
 // interface ITestBackend extends Backend {
 // 	var didCallSetup:Bool;
 // 	var didCallTeardown:Bool;

@@ -4,9 +4,6 @@ import tink.s2d.Point;
 import tink.state.Observable;
 import tink.state.State;
 
-private typedef Item = Any;
-private typedef DropResult = Any;
-
 @:allow(why.dragdrop)
 class Context<Item, Result> implements IContext {
 	final registry:Registry<Item, Result>;
@@ -16,14 +13,14 @@ class Context<Item, Result> implements IContext {
 	final _item:Observable<Item>;
 	final _sourceId:Observable<SourceId>;
 	final _targetIds:Observable<Array<TargetId>>;
-	final _dropResult:Observable<DropResult>;
+	final _dropResult:Observable<Result>;
 	final _didDrop:Observable<Bool>;
 	final _isSourcePublic:Observable<Bool>;
 	final __itemType:State<SourceType>;
 	final __item:State<Item>;
 	final __sourceId:State<SourceId>;
 	final __targetIds:State<Array<TargetId>>;
-	final __dropResult:State<DropResult>;
+	final __dropResult:State<Result>;
 	final __didDrop:State<Bool>;
 	final __isSourcePublic:State<Bool>;
 

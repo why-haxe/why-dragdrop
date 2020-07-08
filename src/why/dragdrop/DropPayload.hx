@@ -1,7 +1,5 @@
 package why.dragdrop;
 
-private typedef Result = Any;
-
-typedef DropPayload = {
+typedef DropPayload<Result> = {
 	dropResult:Result,
 }
