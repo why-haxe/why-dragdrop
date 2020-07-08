@@ -152,14 +152,12 @@ class ManagerActions<Node> implements Actions {
 
 		// Get the source client offset
 		var sourceClientOffset = null;
-		trace(clientOffset);
 		if (clientOffset != null) {
 			if (getSourceClientOffset == null) {
 				throw new Exception('getSourceClientOffset must be defined');
 			}
 			sourceClientOffset = getSourceClientOffset(sourceId);
 		}
-		trace(sourceClientOffset);
 
 		// Initialize the full coordinates
 		// context.setInitialClientOffset(clientOffset);

@@ -11,7 +11,7 @@ class TestBackend implements Backend<Noise> {
 	public var didCallTeardown:Bool = false;
 
 	var manager:Manager<Noise>;
-	var actions:;
+	var actions:Actions;
 
 	public function new(manager) {
 		this.manager = manager;
@@ -38,7 +38,7 @@ class TestBackend implements Backend<Noise> {
 		return null;
 	}
 
-	public function connectDropTarget(targetId:SourceId, ?node:Noise, options:Any):CallbackLink {
+	public function connectDropTarget(targetId:TargetId, ?node:Noise, options:Any):CallbackLink {
 		return null;
 	}
 
