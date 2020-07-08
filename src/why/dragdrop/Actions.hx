@@ -1,6 +1,6 @@
 package why.dragdrop;
 
-interface Actions<Event> {
+interface Actions {
 	function beginDrag(sourceIds:Array<SourceId>, options:BeginDragOptions):Void;
 	function publishDragSource():Void;
 	function hover(targetIds:Array<TargetId>, options:HoverOptions):Void;

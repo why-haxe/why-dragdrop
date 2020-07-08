@@ -146,7 +146,10 @@ class Context implements IContext {
 	}
 
 	public function getSourceClientOffset():Point {
-		return getClientOffset() + getInitialSourceClientOffset() - getInitialClientOffset();
+		return switch [getClientOffset(), getInitialSourceClientOffset(), getInitialClientOffset()] {
+			case [null, _, _] | [_, null, _] | [_, _, null]: null;
+			case [a, b, c]: a + b - c;
+		}
 	}
 
 	public function getDifferenceFromInitialOffset():Point {

@@ -11,7 +11,7 @@ class TestBackend implements Backend<Noise> {
 	public var didCallTeardown:Bool = false;
 
 	var manager:Manager<Noise>;
-	var actions:Actions<Manager.Event>;
+	var actions:;
 
 	public function new(manager) {
 		this.manager = manager;

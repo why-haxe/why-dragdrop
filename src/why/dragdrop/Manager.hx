@@ -19,7 +19,7 @@ class Manager<Node> {
 	final context:Context;
 	final backend:State<Backend<Node>>;
 	final registry:Registry;
-	final actions:Actions<Event>;
+	final actions:Actions;
 
 	final eventsTrigger:SignalTrigger<Event>;
 
@@ -66,7 +66,7 @@ class Manager<Node> {
 		return registry;
 	}
 
-	public inline function getActions():Actions<Event> {
+	public inline function getActions():Actions {
 		return actions;
 	}
 
@@ -75,7 +75,7 @@ class Manager<Node> {
 	}
 }
 
-class ManagerActions<Node> implements Actions<Event> {
+class ManagerActions<Node> implements Actions {
 	final manager:Manager<Node>;
 	final context:Context;
 	final registry:Registry;
@@ -104,6 +104,7 @@ class ManagerActions<Node> implements Actions<Event> {
 
 			case Hover(hover):
 				context.__targetIds.set(hover.targetIds);
+				context.__clientOffset.set(hover.clientOffset);
 
 			// TODO: https://github.com/react-dnd/react-dnd/blob/debc89829dd988f4e942a0251eba36c34a070f42/packages/core/dnd-core/src/reducers/dragOperation.ts#L66-L73
 
@@ -145,12 +146,14 @@ class ManagerActions<Node> implements Actions<Event> {
 
 		// Get the source client offset
 		var sourceClientOffset = null;
+		trace(clientOffset);
 		if (clientOffset != null) {
 			if (getSourceClientOffset == null) {
 				throw new Exception('getSourceClientOffset must be defined');
 			}
 			sourceClientOffset = getSourceClientOffset(sourceId);
 		}
+		trace(sourceClientOffset);
 
 		// Initialize the full coordinates
 		// context.setInitialClientOffset(clientOffset);

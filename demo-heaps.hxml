@@ -1,0 +1,6 @@
+-cp demo
+-main Heaps
+-js bin/demo/heaps/index.js
+
+-lib heaps
+-lib why-dragdrop
