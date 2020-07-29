@@ -5,7 +5,7 @@ import tink.state.Observable;
 import tink.state.State;
 
 @:allow(why.dragdrop)
-class Context<Item, Result> implements IContext {
+class Context<Item, Result> implements IContext<Item, Result> {
 	final registry:Registry<Item, Result>;
 
 	// drag operation
@@ -106,7 +106,7 @@ class Context<Item, Result> implements IContext {
 		return _itemType.value;
 	}
 
-	public function getItem():Any {
+	public function getItem():Item {
 		return _item.value;
 	}
 
@@ -118,7 +118,7 @@ class Context<Item, Result> implements IContext {
 		return _targetIds.value;
 	}
 
-	public function getDropResult():Any {
+	public function getDropResult():Result {
 		return _dropResult.value;
 	}
 
@@ -169,7 +169,7 @@ class Context<Item, Result> implements IContext {
 	}
 }
 
-interface IContext {
+interface IContext<Item, Result> {
 	// subscribeToStateChange(
 	// 	listener: Listener,
 	// 	options?: {
@@ -198,7 +198,7 @@ interface IContext {
 	 * Returns a plain object representing the currently dragged item. Every drag source must specify it by returning an object
 	 * from its beginDrag() method. Returns null if no item is being dragged.
 	 */
-	function getItem():Any;
+	function getItem():Item;
 
 	function getSourceId():SourceId;
 	function getTargetIds():ImmutableArray<TargetId>;
@@ -209,7 +209,7 @@ interface IContext {
 	 * explicitly returns its own result from drop() overrides the child drop result previously set by the child. Returns null if
 	 * called outside endDrag().
 	 */
-	function getDropResult():Any;
+	function getDropResult():Result;
 
 	/**
 	 * Returns true if some drop target has handled the drop event, false otherwise. Even if a target did not return a drop result,
