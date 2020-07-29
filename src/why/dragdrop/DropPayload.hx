@@ -1,5 +1,5 @@
 package why.dragdrop;
 
 typedef DropPayload<Result> = {
-	dropResult:Result,
+	final dropResult:Result;
 }

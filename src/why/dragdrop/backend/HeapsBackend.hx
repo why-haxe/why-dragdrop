@@ -86,7 +86,9 @@ class HeapsBackend<Item, Result> implements Backend<Interactive> {
 						clientOffset: mousePosition,
 						getSourceClientOffset: id -> switch sourceNodes[id] {
 							case null: null;
-							case node: Point.xy(node.parent.x, node.parent.y);
+							case node: 
+								var pos = node.getAbsPos();
+								Point.xy(pos.x, pos.y);
 						},
 						publishSource: false,
 					});

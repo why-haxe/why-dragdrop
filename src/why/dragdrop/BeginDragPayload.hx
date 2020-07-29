@@ -1,10 +1,10 @@
 package why.dragdrop;
 
 typedef BeginDragPayload<Item> = {
-	itemType:SourceType,
-	item:Item,
-	sourceId:SourceId,
-	clientOffset:Point,
-	sourceClientOffset:Point,
-	isSourcePublic:Bool,
+	final itemType:SourceType;
+	final item:Item;
+	final sourceId:SourceId;
+	final clientOffset:Point;
+	final sourceClientOffset:Point;
+	final isSourcePublic:Bool;
 }

@@ -12,14 +12,14 @@ class Context<Item, Result> implements IContext {
 	final _itemType:Observable<SourceType>;
 	final _item:Observable<Item>;
 	final _sourceId:Observable<SourceId>;
-	final _targetIds:Observable<Array<TargetId>>;
+	final _targetIds:Observable<ImmutableArray<TargetId>>;
 	final _dropResult:Observable<Result>;
 	final _didDrop:Observable<Bool>;
 	final _isSourcePublic:Observable<Bool>;
 	final __itemType:State<SourceType>;
 	final __item:State<Item>;
 	final __sourceId:State<SourceId>;
-	final __targetIds:State<Array<TargetId>>;
+	final __targetIds:State<ImmutableArray<TargetId>>;
 	final __dropResult:State<Result>;
 	final __didDrop:State<Bool>;
 	final __isSourcePublic:State<Bool>;
@@ -38,7 +38,7 @@ class Context<Item, Result> implements IContext {
 		_itemType = __itemType = new State(null);
 		_item = __item = new State(null);
 		_sourceId = __sourceId = new State(null);
-		_targetIds = __targetIds = new State([]);
+		_targetIds = __targetIds = new State<ImmutableArray<TargetId>>([]);
 		_dropResult = __dropResult = new State(null);
 		_didDrop = __didDrop = new State(false);
 		_isSourcePublic = __isSourcePublic = new State(false);
@@ -114,7 +114,7 @@ class Context<Item, Result> implements IContext {
 		return _sourceId.value;
 	}
 
-	public function getTargetIds():Array<TargetId> {
+	public function getTargetIds():ImmutableArray<TargetId> {
 		return _targetIds.value;
 	}
 
@@ -164,10 +164,8 @@ class Context<Item, Result> implements IContext {
 		return null;
 	}
 
-	public function getDroppableTargets():Array<TargetId> {
-		final targetIds = getTargetIds().filter(canDropOnTarget);
-		targetIds.reverse();
-		return targetIds;
+	public function getDroppableTargets():ImmutableArray<TargetId> {
+		return getTargetIds().filter(canDropOnTarget).reverse();
 	}
 }
 
@@ -203,7 +201,7 @@ interface IContext {
 	function getItem():Any;
 
 	function getSourceId():SourceId;
-	function getTargetIds():Array<TargetId>;
+	function getTargetIds():ImmutableArray<TargetId>;
 
 	/**
 	 * Returns a plain object representing the last recorded drop result. The drop targets may optionally specify it by returning an

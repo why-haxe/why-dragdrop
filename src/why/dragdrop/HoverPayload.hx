@@ -1,6 +1,6 @@
 package why.dragdrop;
 
 typedef HoverPayload = {
-	targetIds:Array<TargetId>,
-	clientOffset:Point,
+	final targetIds:ImmutableArray<TargetId>;
+	final clientOffset:Point;
 }

@@ -2,17 +2,18 @@ package why.dragdrop;
 
 import haxe.Exception;
 import tink.core.Callback;
+import tink.state.State;
 import tink.state.ObservableMap;
 
 @:allow(why.dragdrop)
 class Registry<Item, Result> {
 	final sourceTypes:Map<SourceId, SourceType> = new Map();
-	final targetTypes:Map<TargetId, Array<TargetType>> = new Map();
+	final targetTypes:Map<TargetId, ImmutableArray<TargetType>> = new Map();
 	final sources:ObservableMap<SourceId, DragSource<Item, Result>> = new ObservableMap([]);
 	final targets:ObservableMap<TargetId, DropTarget<Item, Result>> = new ObservableMap([]);
 
-	var pinnedSourceId:SourceId;
-	var pinnedSource:DragSource<Item, Result>;
+	final pinnedSourceId:State<SourceId> = new State(null);
+	final pinnedSource:State<DragSource<Item, Result>> = new State(null);
 
 	public function new() {}
 
@@ -23,7 +24,7 @@ class Registry<Item, Result> {
 		return id;
 	}
 
-	public function addTarget(type:Array<TargetType>, target:DropTarget<Item, Result>):TargetId {
+	public function addTarget(type:ImmutableArray<TargetType>, target:DropTarget<Item, Result>):TargetId {
 		final id = new TargetId();
 		targetTypes.set(id, type);
 		targets.set(id, target);
@@ -57,7 +58,7 @@ class Registry<Item, Result> {
 		return sourceTypes.get(sourceId);
 	}
 
-	public function getTargetType(targetId:TargetId):Array<TargetType> {
+	public function getTargetType(targetId:TargetId):ImmutableArray<TargetType> {
 		return targetTypes.get(targetId);
 	}
 
@@ -93,13 +94,13 @@ class Registry<Item, Result> {
 		switch getSource(sourceId) {
 			case null:
 			case source:
-				pinnedSourceId = sourceId;
-				pinnedSource = source;
+				pinnedSourceId.set(sourceId);
+				pinnedSource.set(source);
 		}
 	}
 
 	public function unpinSource():Void {
-		pinnedSourceId = null;
-		pinnedSource = null;
+		pinnedSourceId.set(null);
+		pinnedSource.set(null);
 	}
 }

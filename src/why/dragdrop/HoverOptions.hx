@@ -1,5 +1,5 @@
 package why.dragdrop;
 
 typedef HoverOptions = {
-	?clientOffset:Point,
+	final ?clientOffset:Point;
 }

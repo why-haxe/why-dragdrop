@@ -125,6 +125,9 @@ class MyTarget implements DropTarget<MyItem, MyResult> {
 
 	public function drop(ctx:Context<MyItem, MyResult>, targetId:TargetId):MyResult {
 		trace('drop');
+
+		trace(targetId);
+		trace(ctx.getDropResult());
 		return {bar: 'foo'};
 	}
 }
