@@ -39,7 +39,7 @@ class Heaps extends hxd.App {
 		backend.connectDropTarget(targetId2, target2, {});
 
 		// observe drag source position and update sprite position
-		Observable.auto(() -> new Pair(context.getSourceId(), context.getSourceClientOffset())).bind(null, pair -> {
+		Observable.auto(() -> new Pair(context.getSourceId(), context.getSourcePosition())).bind(null, pair -> {
 			var currentSourceId = pair.a;
 			var pos = pair.b;
 			if (pos != null) {
@@ -65,8 +65,8 @@ class Heaps extends hxd.App {
 			item: context.getItem(),
 			sourceId: context.getSourceId(),
 			targetIds: context.getTargetIds(),
-			clientOffset: context.getClientOffset(),
-			sourceClientOffset: context.getSourceClientOffset(),
+			position: context.getPosition(),
+			sourcePosition: context.getSourcePosition(),
 		}).bind(null, v -> trace(v));
 	}
 

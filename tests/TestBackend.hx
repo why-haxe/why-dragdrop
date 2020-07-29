@@ -8,12 +8,10 @@ class TestBackend implements Backend<Noise> {
 	public var didCallSetup:Bool = false;
 	public var didCallTeardown:Bool = false;
 
-	var manager:Manager<Any, Any, Noise>;
-	var actions:Actions;
+	final actions:Actions;
 
-	public function new(manager) {
-		this.manager = manager;
-		this.actions = manager.getActions();
+	public function new(actions) {
+		this.actions = actions;
 	}
 
 	public function profile():Map<String, Int> {

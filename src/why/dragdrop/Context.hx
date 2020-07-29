@@ -5,7 +5,7 @@ import tink.state.Observable;
 import tink.state.State;
 
 @:allow(why.dragdrop)
-class Context<Item, Result> implements IContext<Item, Result> {
+class Context<Item, Result> {
 	final registry:Registry<Item, Result>;
 
 	// drag operation
@@ -25,12 +25,12 @@ class Context<Item, Result> implements IContext<Item, Result> {
 	final __isSourcePublic:State<Bool>;
 
 	// drag offset
-	final _initialClientOffset:Observable<Point>;
-	final _initialSourceClientOffset:Observable<Point>;
-	final _clientOffset:Observable<Point>;
-	final __initialClientOffset:State<Point>;
-	final __initialSourceClientOffset:State<Point>;
-	final __clientOffset:State<Point>;
+	final _initialPosition:Observable<Point>;
+	final _initialSourcePosition:Observable<Point>;
+	final _position:Observable<Point>;
+	final __initialPosition:State<Point>;
+	final __initialSourcePosition:State<Point>;
+	final __position:State<Point>;
 
 	public function new(registry) {
 		this.registry = registry;
@@ -42,9 +42,9 @@ class Context<Item, Result> implements IContext<Item, Result> {
 		_dropResult = __dropResult = new State(null);
 		_didDrop = __didDrop = new State(false);
 		_isSourcePublic = __isSourcePublic = new State(false);
-		_initialClientOffset = __initialClientOffset = new State(null);
-		_initialSourceClientOffset = __initialSourceClientOffset = new State(null);
-		_clientOffset = __clientOffset = new State(null);
+		_initialPosition = __initialPosition = new State(null);
+		_initialSourcePosition = __initialSourcePosition = new State(null);
+		_position = __position = new State(null);
 	}
 
 	public function canDragSource(sourceId:SourceId):Bool {
@@ -66,6 +66,10 @@ class Context<Item, Result> implements IContext<Item, Result> {
 		}
 	}
 
+	/**
+	 * Returns true if a drag operation is in progress, and either the owner initiated the drag, or its isDragging()
+	 * is defined and returns true.
+	 */
 	public function isDragging():Bool {
 		return getItemType() != null;
 	}
@@ -102,55 +106,93 @@ class Context<Item, Result> implements IContext<Item, Result> {
 		}
 	}
 
-	public function getItemType():SourceType {
+	/**
+	 * Returns a string or an ES6 symbol identifying the type of the current dragged item. Returns null if no item is being dragged.
+	 */
+	public inline function getItemType():SourceType {
 		return _itemType.value;
 	}
 
-	public function getItem():Item {
+	/**
+	 * Returns a plain object representing the currently dragged item. Every drag source must specify it by returning an object
+	 * from its beginDrag() method. Returns null if no item is being dragged.
+	 */
+	public inline function getItem():Item {
 		return _item.value;
 	}
 
-	public function getSourceId():SourceId {
+	public inline function getSourceId():SourceId {
 		return _sourceId.value;
 	}
 
-	public function getTargetIds():ImmutableArray<TargetId> {
+	public inline function getTargetIds():ImmutableArray<TargetId> {
 		return _targetIds.value;
 	}
 
-	public function getDropResult():Result {
+	/**
+	 * Returns a plain object representing the last recorded drop result. The drop targets may optionally specify it by returning an
+	 * object from their drop() methods. When a chain of drop() is dispatched for the nested targets, bottom up, any parent that
+	 * explicitly returns its own result from drop() overrides the child drop result previously set by the child. Returns null if
+	 * called outside endDrag().
+	 */
+	public inline function getDropResult():Result {
 		return _dropResult.value;
 	}
 
-	public function didDrop():Bool {
+	/**
+	 * Returns true if some drop target has handled the drop event, false otherwise. Even if a target did not return a drop result,
+	 * didDrop() returns true. Use it inside endDrag() to test whether any drop target has handled the drop. Returns false if called
+	 * outside endDrag().
+	 */
+	public inline function didDrop():Bool {
 		return _didDrop.value;
 	}
 
-	public function isSourcePublic():Bool {
+	public inline function isSourcePublic():Bool {
 		return _isSourcePublic.value;
 	}
 
-	public function getInitialClientOffset():Point {
-		return _initialClientOffset.value;
+	/**
+	 * Returns the { x, y } client offset of the pointer at the time when the current drag operation has started.
+	 * Returns null if no item is being dragged.
+	 */
+	public inline function getInitialPosition():Point {
+		return _initialPosition.value;
 	}
 
-	public function getInitialSourceClientOffset():Point {
-		return _initialSourceClientOffset.value;
+	/**
+	 * Returns the { x, y } client offset of the drag source component's root DOM node at the time when the current drag
+	 * operation has started. Returns null if no item is being dragged.
+	 */
+	public function getInitialSourcePosition():Point {
+		return _initialSourcePosition.value;
 	}
 
-	public function getClientOffset():Point {
-		return _clientOffset.value;
+	/**
+	 * Returns the last recorded { x, y } client offset of the pointer while a drag operation is in progress.
+	 * Returns null if no item is being dragged.
+	 */
+	public inline function getPosition():Point {
+		return _position.value;
 	}
 
-	public function getSourceClientOffset():Point {
-		return switch [getClientOffset(), getInitialSourceClientOffset(), getInitialClientOffset()] {
+	/**
+	 * Returns the projected { x, y } client offset of the drag source component's root DOM node, based on its position at the time
+	 * when the current drag operation has started, and the movement difference. Returns null if no item is being dragged.
+	 */
+	public function getSourcePosition():Point {
+		return switch [getPosition(), getInitialSourcePosition(), getInitialPosition()] {
 			case [null, _, _] | [_, null, _] | [_, _, null]: null;
 			case [a, b, c]: a + b - c;
 		}
 	}
 
-	public function getDifferenceFromInitialOffset():Point {
-		return getClientOffset() - getInitialClientOffset();
+	/**
+	 * Returns the { x, y } difference between the last recorded client offset of the pointer and the client offset when the current
+	 * drag operation has started. Returns null if no item is being dragged.
+	 */
+	public inline function getDifferenceFromInitialPosition():Point {
+		return getPosition() - getInitialPosition();
 	}
 
 	public function getDraggableSource(sourceIds:Array<SourceId>):SourceId {
@@ -167,86 +209,4 @@ class Context<Item, Result> implements IContext<Item, Result> {
 	public function getDroppableTargets():ImmutableArray<TargetId> {
 		return getTargetIds().filter(canDropOnTarget).reverse();
 	}
-}
-
-interface IContext<Item, Result> {
-	// subscribeToStateChange(
-	// 	listener: Listener,
-	// 	options?: {
-	// 		handlerIds: Identifier[]
-	// 	},
-	// ): Unsubscribe
-	// subscribeToOffsetChange(listener: Listener): Unsubscribe
-	function canDragSource(sourceId:SourceId):Bool;
-	function canDropOnTarget(targetId:TargetId):Bool;
-
-	/**
-	 * Returns true if a drag operation is in progress, and either the owner initiated the drag, or its isDragging()
-	 * is defined and returns true.
-	 */
-	function isDragging():Bool;
-
-	function isDraggingSource(sourceId:SourceId):Bool;
-	function isOverTarget(targetId:TargetId, ?options:{?shallow:Bool}):Bool;
-
-	/**
-	 * Returns a string or an ES6 symbol identifying the type of the current dragged item. Returns null if no item is being dragged.
-	 */
-	function getItemType():SourceType;
-
-	/**
-	 * Returns a plain object representing the currently dragged item. Every drag source must specify it by returning an object
-	 * from its beginDrag() method. Returns null if no item is being dragged.
-	 */
-	function getItem():Item;
-
-	function getSourceId():SourceId;
-	function getTargetIds():ImmutableArray<TargetId>;
-
-	/**
-	 * Returns a plain object representing the last recorded drop result. The drop targets may optionally specify it by returning an
-	 * object from their drop() methods. When a chain of drop() is dispatched for the nested targets, bottom up, any parent that
-	 * explicitly returns its own result from drop() overrides the child drop result previously set by the child. Returns null if
-	 * called outside endDrag().
-	 */
-	function getDropResult():Result;
-
-	/**
-	 * Returns true if some drop target has handled the drop event, false otherwise. Even if a target did not return a drop result,
-	 * didDrop() returns true. Use it inside endDrag() to test whether any drop target has handled the drop. Returns false if called
-	 * outside endDrag().
-	 */
-	function didDrop():Bool;
-
-	function isSourcePublic():Bool;
-
-	/**
-	 * Returns the { x, y } client offset of the pointer at the time when the current drag operation has started.
-	 * Returns null if no item is being dragged.
-	 */
-	function getInitialClientOffset():Point;
-
-	/**
-	 * Returns the { x, y } client offset of the drag source component's root DOM node at the time when the current drag
-	 * operation has started. Returns null if no item is being dragged.
-	 */
-	function getInitialSourceClientOffset():Point;
-
-	/**
-	 * Returns the last recorded { x, y } client offset of the pointer while a drag operation is in progress.
-	 * Returns null if no item is being dragged.
-	 */
-	function getClientOffset():Point;
-
-	/**
-	 * Returns the projected { x, y } client offset of the drag source component's root DOM node, based on its position at the time
-	 * when the current drag operation has started, and the movement difference. Returns null if no item is being dragged.
-	 */
-	function getSourceClientOffset():Point;
-
-	/**
-	 * Returns the { x, y } difference between the last recorded client offset of the pointer and the client offset when the current
-	 * drag operation has started. Returns null if no item is being dragged.
-	 */
-	function getDifferenceFromInitialOffset():Point;
 }

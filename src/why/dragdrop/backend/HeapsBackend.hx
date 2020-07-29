@@ -83,10 +83,10 @@ class HeapsBackend<Item, Result> implements Backend<Interactive> {
 				var position = Point.xy(e.relX, e.relY);
 				if (!context.isDragging() && moveStartSourceIds != null) {
 					actions.beginDrag(moveStartSourceIds, {
-						clientOffset: mousePosition,
-						getSourceClientOffset: id -> switch sourceNodes[id] {
+						position: mousePosition,
+						getSourcePosition: id -> switch sourceNodes[id] {
 							case null: null;
-							case node: 
+							case node:
 								var pos = node.getAbsPos();
 								Point.xy(pos.x, pos.y);
 						},
@@ -107,7 +107,7 @@ class HeapsBackend<Item, Result> implements Backend<Interactive> {
 				final orderedDragOverTargetIds = dragOverTargetNodes.map(getTargetId);
 
 				actions.hover(orderedDragOverTargetIds, {
-					clientOffset: position,
+					position: position,
 				});
 
 				dragOverTargetIds = null;

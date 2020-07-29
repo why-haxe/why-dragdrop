@@ -15,107 +15,78 @@ enum Event<Item, Result> {
 }
 
 class Manager<Item, Result, Node> {
-	final events:Signal<Event<Item, Result>>;
-	final context:Context<Item, Result>;
-	final backend:State<Backend<Node>>;
-	final registry:Registry<Item, Result>;
-	final actions:Actions;
+	public final registry:Registry<Item, Result>;
+	public final context:Context<Item, Result>;
+	public final actions:Actions;
+	public final backend:Backend<Node>;
 
-	final eventsTrigger:SignalTrigger<Event<Item, Result>>;
-
-	public function new() {
+	public function new(makeBackend:Manager<Item, Result, Node>->Backend<Node>) {
 		registry = new Registry();
 		context = new Context(registry);
-		backend = new State(null);
 		actions = new ManagerActions(this);
-		events = eventsTrigger = Signal.trigger();
+		backend = makeBackend(this);
 
 		var registryCount = Observable.auto(() -> Lambda.count(registry.sources) + Lambda.count(registry.targets));
-		var backendBinding:CallbackLink = null;
-		backend.bind(null, backend -> {
-			backendBinding.cancel();
-			if (backend != null) {
-				var isSetUp = false;
-				backendBinding = registryCount.bind({direct: true}, count -> {
-					final shouldSetUp = count > 0;
-					if (shouldSetUp && !isSetUp) {
-						backend.setup();
-						isSetUp = true;
-					} else if (!shouldSetUp && isSetUp) {
-						backend.teardown();
-						isSetUp = false;
-					}
-				});
+		var isSetUp = false;
+
+		registryCount.bind({direct: true}, count -> {
+			final shouldSetUp = count > 0;
+			if (shouldSetUp && !isSetUp) {
+				backend.setup();
+				isSetUp = true;
+			} else if (!shouldSetUp && isSetUp) {
+				backend.teardown();
+				isSetUp = false;
 			}
 		});
 	}
 
-	public inline function setBackend(value:Backend<Node>) {
-		backend.set(value);
-	}
-
-	public inline function getMonitor():Context<Item, Result> {
-		return context;
-	}
-
-	public inline function getBackend():Backend<Node> {
-		return backend.value;
-	}
-
-	public inline function getRegistry():Registry<Item, Result> {
-		return registry;
-	}
-
-	public inline function getActions():Actions {
-		return actions;
-	}
-
-	public inline function dispatch(event:Event<Item, Result>) {
-		eventsTrigger.trigger(event);
-	}
+	// @:deprecated public inline function getMonitor():Context<Item, Result> {
+	// 	return context;
+	// }
+	// @:deprecated public inline function getBackend():Backend<Node> {
+	// 	return backend;
+	// }
+	// @:deprecated public inline function getRegistry():Registry<Item, Result> {
+	// 	return registry;
+	// }
+	// @:deprecated public inline function getActions():Actions {
+	// 	return actions;
+	// }
 }
 
 class ManagerActions<Item, Result, Node> implements Actions {
-	final manager:Manager<Item, Result, Node>;
 	final context:Context<Item, Result>;
 	final registry:Registry<Item, Result>;
-	final signal:SignalTrigger<Event<Item, Result>>;
 
-	public function new(manager) {
-		this.manager = manager;
-		this.context = manager.getMonitor();
-		this.registry = manager.getRegistry();
+	public function new(manager:Manager<Item, Result, Node>) {
+		this.context = manager.context;
+		this.registry = manager.registry;
+	}
 
-		// in the original library the side effects are applied to a redux store
-		// our Context does the same thing with Observables
-		signal = Signal.trigger();
-		signal.asSignal().handle(function(event) switch event {
+	function trigger(event:Event<Item, Result>)
+		switch event {
 			case BeginDrag(beginDrag):
 				context.__itemType.set(beginDrag.itemType);
 				context.__item.set(beginDrag.item);
 				context.__sourceId.set(beginDrag.sourceId);
-				context.__clientOffset.set(beginDrag.clientOffset);
-				context.__initialClientOffset.set(beginDrag.clientOffset);
-				context.__initialSourceClientOffset.set(beginDrag.sourceClientOffset);
+				context.__position.set(beginDrag.position);
+				context.__initialPosition.set(beginDrag.position);
+				context.__initialSourcePosition.set(beginDrag.sourcePosition);
 				context.__isSourcePublic.set(beginDrag.isSourcePublic);
-
 			case PublishDragSource:
 				context.__isSourcePublic.set(true);
-
 			case Hover(hover):
 				context.__targetIds.set(hover.targetIds);
-				context.__clientOffset.set(hover.clientOffset);
-
+				context.__position.set(hover.position);
 			// TODO: https://github.com/react-dnd/react-dnd/blob/debc89829dd988f4e942a0251eba36c34a070f42/packages/core/dnd-core/src/reducers/dragOperation.ts#L66-L73
-
 			case Drop(drop):
 				context.__dropResult.set(drop.dropResult);
 				context.__didDrop.set(true);
 				context.__targetIds.set([]);
-				context.__clientOffset.set(null);
-				context.__initialClientOffset.set(null);
-				context.__initialSourceClientOffset.set(null);
-
+				context.__position.set(null);
+				context.__initialPosition.set(null);
+				context.__initialSourcePosition.set(null);
 			case EndDrag:
 				context.__itemType.set(null);
 				context.__item.set(null);
@@ -124,17 +95,16 @@ class ManagerActions<Item, Result, Node> implements Actions {
 				context.__didDrop.set(false);
 				context.__isSourcePublic.set(false);
 				context.__targetIds.set([]);
-				context.__clientOffset.set(null);
-				context.__initialClientOffset.set(null);
-				context.__initialSourceClientOffset.set(null);
-		});
-	}
+				context.__position.set(null);
+				context.__initialPosition.set(null);
+				context.__initialSourcePosition.set(null);
+		}
 
 	public function beginDrag(sourceIds:Array<SourceId>, options:BeginDragOptions) {
 		splat(options);
 
 		// Initialize the coordinates using the client offset
-		// context.setInitialClientOffset(clientOffset);
+		// context.setInitialPosition(position);
 
 		if (context.isDragging())
 			throw new Exception('Cannot call beginDrag while dragging.');
@@ -145,42 +115,42 @@ class ManagerActions<Item, Result, Node> implements Actions {
 
 		final sourceId = context.getDraggableSource(sourceIds);
 		if (sourceId == null) {
-			// context.setInitialClientOffset(null);
-			// context.setInitialSourceClientOffset(null);
+			// context.setInitialPosition(null);
+			// context.setInitialSourcePosition(null);
 			return;
 		}
 
 		// Get the source client offset
-		var sourceClientOffset = null;
-		if (clientOffset != null) {
-			if (getSourceClientOffset == null) {
-				throw new Exception('getSourceClientOffset must be defined');
+		var sourcePosition = null;
+		if (position != null) {
+			if (getSourcePosition == null) {
+				throw new Exception('getSourcePosition must be defined');
 			}
-			sourceClientOffset = getSourceClientOffset(sourceId);
+			sourcePosition = getSourcePosition(sourceId);
 		}
 
 		// Initialize the full coordinates
-		// context.setInitialClientOffset(clientOffset);
-		// context.setInitialSourceClientOffset(sourceClientOffset);
+		// context.setInitialPosition(position);
+		// context.setInitialSourcePosition(sourcePosition);
 		final source = registry.getSource(sourceId);
 		final item = source.beginDrag(context, sourceId);
 
 		registry.pinSource(sourceId);
 		final itemType = registry.getSourceType(sourceId);
 
-		signal.trigger(BeginDrag({
+		trigger(BeginDrag({
 			itemType: itemType,
 			item: item,
 			sourceId: sourceId,
-			clientOffset: clientOffset,
-			sourceClientOffset: sourceClientOffset,
+			position: position,
+			sourcePosition: sourcePosition,
 			isSourcePublic: publishSource == true,
 		}));
 	}
 
 	public function publishDragSource() {
 		if (context.isDragging())
-			signal.trigger(PublishDragSource);
+			trigger(PublishDragSource);
 	}
 
 	public function hover(targetIds:Array<TargetId>, options:HoverOptions):Void {
@@ -217,9 +187,9 @@ class ManagerActions<Item, Result, Node> implements Actions {
 			target.hover(context, targetId);
 		}
 
-		signal.trigger(Hover({
+		trigger(Hover({
 			targetIds: targetIds,
-			clientOffset: options.clientOffset,
+			position: options.position,
 		}));
 	}
 
@@ -237,7 +207,7 @@ class ManagerActions<Item, Result, Node> implements Actions {
 			if (dropResult == null)
 				dropResult = index == 0 ? cast {} : context.getDropResult(); // TODO: fix cast
 
-			signal.trigger(Drop({dropResult: dropResult}));
+			trigger(Drop({dropResult: dropResult}));
 		}
 	}
 
@@ -250,6 +220,6 @@ class ManagerActions<Item, Result, Node> implements Actions {
 			source.endDrag(context, sourceId);
 			registry.unpinSource();
 		}
-		signal.trigger(EndDrag);
+		trigger(EndDrag);
 	}
 }

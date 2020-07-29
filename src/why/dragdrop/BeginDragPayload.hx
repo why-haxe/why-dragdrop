@@ -4,7 +4,7 @@ typedef BeginDragPayload<Item> = {
 	final itemType:SourceType;
 	final item:Item;
 	final sourceId:SourceId;
-	final clientOffset:Point;
-	final sourceClientOffset:Point;
+	final position:Point;
+	final sourcePosition:Point;
 	final isSourcePublic:Bool;
 }
