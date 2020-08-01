@@ -15,16 +15,16 @@ class Heaps extends hxd.App {
 
 	override function init() {
 		// setup drag/drop manager & backend
-		final manager = new Manager();
-		final context = manager.getMonitor();
-		final backend = new HeapsBackend(s2d, context, manager.getActions());
-		manager.setBackend(backend);
+		final manager = new Manager(manager -> new HeapsBackend(s2d, manager.context, manager.actions));
+		final backend = manager.backend;
+		final registry = manager.registry;
+		final context = manager.context;
 
 		// create drag/drop handlers
-		var sourceId1 = manager.getRegistry().addSource('DEFAULT', new MySource());
-		var sourceId2 = manager.getRegistry().addSource('FOO', new MySource());
-		var targetId1 = manager.getRegistry().addTarget(['DEFAULT'], new MyTarget());
-		var targetId2 = manager.getRegistry().addTarget(['DEFAULT', 'FOO'], new MyTarget());
+		var sourceId1 = registry.addSource('DEFAULT', new MySource());
+		var sourceId2 = registry.addSource('FOO', new MySource());
+		var targetId1 = registry.addTarget(['DEFAULT'], new MyTarget());
+		var targetId2 = registry.addTarget(['DEFAULT', 'FOO'], new MyTarget());
 
 		// create sprites
 		var target2 = makeSprite(200, 0, 300, 300, 0x0000ff);
